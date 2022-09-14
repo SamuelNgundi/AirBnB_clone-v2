@@ -9,15 +9,19 @@ class FileStorage:
     __objects = {}
 
     def all(self, cls=None):
-        """Returns a dictionary of models currently in storage"""
-        one_type_objects = {}
-        if cls is not None:
-            for key, value in self.__objects.items():
-                if key.startswith(str(cls.__name__)):
-                    one_type_objects[key] = value
-        else:
-            one_type_objects = self.__objects
-        return one_type_objects
+        """
+            Returns a dictionary of models currently in storage
+            Args:
+                cls: class
+        """
+        if cls:
+            new_obj = dict()
+
+            for key, val in FileStorage.__objects.items():
+                if key.startswith(cls.__name__):
+                    new_obj[key] = val
+            return new_obj
+        return FileStorage.__objects
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
@@ -31,16 +35,6 @@ class FileStorage:
             for key, val in temp.items():
                 temp[key] = val.to_dict()
             json.dump(temp, f)
-
-    def delete(self, obj=None):
-        """To delete obj from __objects__ if it's inside -
-        if obj is equal to None, the method should not do anything"""
-        if obj:
-            # form a key from the obj, eg. obj + obj.id
-            new key = "{}.{}".format(type(obj).__name__, obj.id)
-            if new_key in self.__objects:
-                del self.__objects[new_key]
-                self.save()
 
     def reload(self):
         """Loads storage dictionary from file"""
@@ -65,3 +59,13 @@ class FileStorage:
                     self.all()[key] = classes[val['__class__']](**val)
         except FileNotFoundError:
             pass
+
+    def delete(self, obj=None):
+        """ Deletes obj in storage """
+        if obj:
+            key = obj.to_dict()['__class__'] + '.' + obj.id
+
+            if key in FileStorage.__objects:
+                del FileStorage.__objects[key]
+
+            self.save()
