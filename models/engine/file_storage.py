@@ -15,7 +15,6 @@ class FileStorage:
             for key, value in self.__objects.items():
                 if key.startswith(str(cls.__name__)):
                     one_type_objects[key] = value
-                    one_type_objects = self.__objects
         else:
             one_type_objects = self.__objects
         return one_type_objects
@@ -32,6 +31,16 @@ class FileStorage:
             for key, val in temp.items():
                 temp[key] = val.to_dict()
             json.dump(temp, f)
+
+    def delete(self, obj=None):
+        """To delete obj from __objects__ if it's inside -
+        if obj is equal to None, the method should not do anything"""
+        if obj:
+            # form a key from the obj, eg. obj + obj.id
+            new key = "{}.{}".format(type(obj).__name__, obj.id)
+            if new_key in self.__objects:
+                del self.__objects[new_key]
+                self.save()
 
     def reload(self):
         """Loads storage dictionary from file"""
